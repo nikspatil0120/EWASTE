@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoreboard - E-Waste Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🏆</div>
+            <h1>Quiz Scoreboard</h1>
+            <p class="subtitle">All Attempts</p>
+        </header>
+
+        <div class="scoreboard-container quiz-section">
+            {% if error %}
+            <div class="error-message">{{ error }}</div>
+            {% else %}
+            <table class="scoreboard-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Name</th>
+                        <th>Roll Number</th>
+                        <th>Score</th>
+                        <th>Time Taken</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for score in scores %}
+                    <tr>
+                        <td>{{ score.rank }}</td>
+                        <td>{{ score.name }}</td>
+                        <td>{{ score.roll_number }}</td>
+                        <td>{{ score.score }}/10</td>
+                        <td>{{ "%02d:%02d"|format(score.time_taken|int // 60, score.time_taken|int % 60) }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="no-scores">No scores yet!</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
+            <div class="button-container">
+                <a href="{{ url_for('index') }}" class="btn">Back to Home</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

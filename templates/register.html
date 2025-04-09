@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - E-Waste Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🌱</div>
+            <h1>E-Waste Quiz</h1>
+            <p class="subtitle">Register to start the quiz</p>
+        </header>
+
+        <div class="register-container quiz-section">
+            <form method="POST" action="{{ url_for('register') }}" class="register-form">
+                {% if error %}
+                <div class="error-message">{{ error }}</div>
+                {% endif %}
+                
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" required placeholder="Enter your full name">
+                </div>
+
+                <div class="form-group">
+                    <label for="roll_number">Roll Number</label>
+                    <input type="text" id="roll_number" name="roll_number" required 
+                           placeholder="Format: 23102A0057" pattern="\d{2}(10[1-9]|110)[A-Z]\d{4}"
+                           title="Please use format: 23102A0057">
+                    <small class="help-text">Format: 23102A0057</small>
+                </div>
+
+                <button type="submit" class="btn">Start Quiz</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html> 
