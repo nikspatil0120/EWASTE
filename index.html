@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Waste Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🌱</div>
+            <h1>E-Waste Quiz</h1>
+            <p class="subtitle">Test your knowledge about electronic waste and recycling!</p>
+            <div class="user-info">
+                Welcome, {{ session['user']['name'] }}!
+                <a href="{{ url_for('register') }}" class="btn btn-outline">Switch User</a>
+            </div>
+        </header>
+
+        <div id="quiz-container">
+            <div id="start-screen" class="quiz-section">
+                <h2>Ready to test your e-waste knowledge?</h2>
+                <p>Answer 10 questions about electronic waste and recycling. Let's see how much you know!</p>
+                <div class="button-container">
+                    <button id="start-btn" class="btn">Start Quiz</button>
+                    <a href="{{ url_for('scoreboard') }}" class="btn btn-outline">View Scoreboard</a>
+                </div>
+            </div>
+
+            <div id="quiz-screen" class="quiz-section" style="display: none;">
+                <div class="quiz-header">
+                    <div class="progress-bar-container">
+                        <div class="progress-text">Question <span id="current-question">1</span>/10</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                    </div>
+                    <div class="timer-container">
+                        <span id="timer">00:00</span>
+                    </div>
+                </div>
+
+                <div class="question-container">
+                    <h2 id="question-text"></h2>
+                    <div class="options-container">
+                        <button class="option-btn" data-option="A"></button>
+                        <button class="option-btn" data-option="B"></button>
+                        <button class="option-btn" data-option="C"></button>
+                        <button class="option-btn" data-option="D"></button>
+                    </div>
+                </div>
+
+                <div id="feedback" class="feedback-container" style="display: none;">
+                    <div class="feedback-content">
+                        <div id="result-icon"></div>
+                        <p id="feedback-text"></p>
+                        <p id="explanation-text" class="explanation"></p>
+                        <button id="next-btn" class="btn">Next Question</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="result-screen" class="quiz-section" style="display: none;">
+                <h2>Quiz Complete! 🎉</h2>
+                <div class="score-container">
+                    <p>Your Score</p>
+                    <div class="score"><span id="score">0</span>/10</div>
+                    <p class="time-taken">Time taken: <span id="final-time">00:00</span></p>
+                </div>
+                <div class="result-message"></div>
+                <div id="high-score-message" class="high-score-message" style="display: none;">
+                    🎉 New High Score! 🎉
+                </div>
+                <div class="button-container">
+                    <button id="restart-btn" class="btn">Try Again</button>
+                    <a href="{{ url_for('scoreboard') }}" class="btn btn-outline">View Scoreboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html> 
