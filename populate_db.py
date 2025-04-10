@@ -96,7 +96,7 @@ questions_data = [
 
 def populate_database():
     with app.app_context():
-        # Clear existing questions
+        # Clear existing questionsA
         Question.query.delete()
         
         # Add new questions
