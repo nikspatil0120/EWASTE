@@ -163,7 +163,7 @@ def get_questions():
         return jsonify([q.to_dict() for q in random_questions])
     except Exception as e:
         print(f"Error fetching questions: {e}", file=sys.stderr)
-        return jsonify({'error': 'Failed to fetch questions'}), 500
+        return jsonify({'error': 'Failed to fetch questions', 'details': str(e)}), 500
 
 @app.route('/api/submit-score', methods=['POST'])
 def submit_score():
