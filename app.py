@@ -7,8 +7,12 @@ import sys
 from datetime import datetime
 import re
 import logging
+from populate_db import populate_database
 
 load_dotenv()
+
+# Call the function to populate the database
+populate_database()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key')
