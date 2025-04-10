@@ -6,8 +6,6 @@ import random
 import sys
 from datetime import datetime
 import re
-import asyncpg
-import asyncio
 import logging
 
 load_dotenv()
