@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 import os
 from dotenv import load_dotenv
@@ -6,21 +6,27 @@ import random
 import sys
 from datetime import datetime
 import re
+import asyncpg
+import asyncio
 
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)  # Required for session management
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key')
 
 # Database configuration
-try:
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://postgres:Nikhil123@localhost/ewaste_quiz')
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    db = SQLAlchemy(app)
-    print("Database connection successful!")
-except Exception as e:
-    print(f"Database connection error: {e}", file=sys.stderr)
-    sys.exit(1)
+database_url = os.getenv('POSTGRES_URL')  # Using POSTGRES_URL from Vercel
+if database_url and database_url.startswith('postgres://'):
+    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_pre_ping': True,  # Enable connection health checks
+    'pool_size': 5,  # Adjust based on your needs
+    'max_overflow': 10
+}
+
+db = SQLAlchemy(app)
 
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
