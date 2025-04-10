@@ -8,6 +8,7 @@ from datetime import datetime
 import re
 import asyncpg
 import asyncio
+import logging
 
 load_dotenv()
 
@@ -15,9 +16,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key')
 
 # Database configuration
-database_url = os.getenv('POSTGRES_URL')  # Using POSTGRES_URL from Vercel
-if database_url and database_url.startswith('postgres://'):
-    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+database_url = "postgresql://neondb_owner:npg_Ieu9SadvV8Kh@ep-jolly-recipe-a115zv9a-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
@@ -120,7 +119,7 @@ def get_questions():
         random_questions = random.sample(questions, min(10, len(questions)))
         return jsonify([q.to_dict() for q in random_questions])
     except Exception as e:
-        print(f"Error fetching questions: {e}", file=sys.stderr)
+        logging.error(f"Error fetching questions: {e}")
         return jsonify({'error': 'Failed to fetch questions'}), 500
 
 @app.route('/api/submit-score', methods=['POST'])
