@@ -15,7 +15,7 @@ load_dotenv()
 populate_database()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', '578c216ade5f886eb495c28ae56f71c2ba403bb259100210a8680560fde6f116')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-secret-key')
 
 # Database configuration - use environment variable
 database_url = os.getenv('DATABASE_URL')
