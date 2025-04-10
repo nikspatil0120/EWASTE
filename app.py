@@ -116,6 +116,7 @@ def get_questions():
     
     try:
         questions = Question.query.all()
+        print(f"Fetched {len(questions)} questions from the database", file=sys.stderr)
         if not questions:
             return jsonify({'error': 'No questions found in database'}), 404
         random_questions = random.sample(questions, min(10, len(questions)))
