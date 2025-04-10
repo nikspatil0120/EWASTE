@@ -120,6 +120,7 @@ def get_questions():
         if not questions:
             return jsonify({'error': 'No questions found in database'}), 404
         random_questions = random.sample(questions, min(10, len(questions)))
+        print(f"Returning {len(random_questions)} random questions", file=sys.stderr)
         return jsonify([q.to_dict() for q in random_questions])
     except Exception as e:
         print(f"Error fetching questions: {e}", file=sys.stderr)
