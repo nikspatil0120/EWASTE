@@ -15,19 +15,58 @@ load_dotenv()
 populate_database()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', '578c216ade5f886eb495c28ae56f71c2ba403bb259100210a8680560fde6f116')
 
-# Database configuration
-database_url = "postgresql://neondb_owner:npg_Ieu9SadvV8Kh@ep-jolly-recipe-a115zv9a-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
+# Database configuration - use environment variable
+database_url = os.getenv('DATABASE_URL')
+
+# Ensure proper formatting for connection pooling and SSL
+if database_url and database_url.startswith('postgresql://'):
+    if '-pooler' not in database_url:
+        database_url = database_url.replace(
+            'ep-odd-wind-a1qd5rnj.ap-southeast-1.aws.neon.tech',
+            'ep-odd-wind-a1qd5rnj-pooler.ap-southeast-1.aws.neon.tech'
+        )
+    if '?sslmode=' not in database_url:
+        database_url += '?sslmode=require'
+    elif 'sslmode=require' not in database_url:
+        database_url = database_url.split('?')[0] + '?sslmode=require'
+
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    'pool_pre_ping': True,  # Enable connection health checks
-    'pool_size': 5,  # Adjust based on your needs
-    'max_overflow': 10
+    'pool_pre_ping': True,
+    'pool_size': 5,
+    'max_overflow': 2,
+    'pool_recycle': 300,  # 5 minutes
+    'pool_timeout': 30,   # 30 seconds
+    'connect_args': {
+        'connect_timeout': 10,  # 10 seconds
+        'keepalives': 1,
+        'keepalives_idle': 30,
+        'keepalives_interval': 10,
+        'keepalives_count': 5
+    }
 }
 
 db = SQLAlchemy(app)
+
+# Add a test endpoint to verify the connection
+@app.route('/test-db')
+def test_db():
+    try:
+        result = db.session.execute('SELECT 1').scalar()
+        return jsonify({
+            'status': 'success',
+            'database': 'connected',
+            'result': result
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'database': 'connection failed',
+            'error': str(e)
+        }), 500
 
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
