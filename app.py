@@ -14,7 +14,7 @@ load_dotenv()
 # Call the function to populate the database
 populate_database()
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-secret-key')
 
 # Database configuration - use environment variable
@@ -264,6 +264,11 @@ def check_answer():
     except Exception as e:
         print(f"Error checking answer: {e}", file=sys.stderr)
         return jsonify({'error': 'Failed to check answer'}), 500
+
+# Ensure static files are accessible
+@app.route('/favicon.ico')
+def favicon():
+    return app.send_static_file('favicon.ico')
 
 if __name__ == '__main__':
     with app.app_context():
