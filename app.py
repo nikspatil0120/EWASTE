@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 import os
 from dotenv import load_dotenv
@@ -6,67 +6,21 @@ import random
 import sys
 from datetime import datetime
 import re
-import logging
-from populate_db import populate_database
 
 load_dotenv()
 
-# Call the function to populate the database
-populate_database()
+app = Flask(__name__)
+app.secret_key = os.urandom(24)  # Required for session management
 
-app = Flask(__name__, static_folder='static')
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-secret-key')
-
-# Database configuration - use environment variable
-database_url = os.getenv('DATABASE_URL')
-
-# Ensure proper formatting for connection pooling and SSL
-if database_url and database_url.startswith('postgresql://'):
-    if '-pooler' not in database_url:
-        database_url = database_url.replace(
-            'ep-odd-wind-a1qd5rnj.ap-southeast-1.aws.neon.tech',
-            'ep-odd-wind-a1qd5rnj-pooler.ap-southeast-1.aws.neon.tech'
-        )
-    if '?sslmode=' not in database_url:
-        database_url += '?sslmode=require'
-    elif 'sslmode=require' not in database_url:
-        database_url = database_url.split('?')[0] + '?sslmode=require'
-
-app.config['SQLALCHEMY_DATABASE_URI'] = database_url
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    'pool_pre_ping': True,
-    'pool_size': 5,
-    'max_overflow': 2,
-    'pool_recycle': 300,  # 5 minutes
-    'pool_timeout': 30,   # 30 seconds
-    'connect_args': {
-        'connect_timeout': 10,  # 10 seconds
-        'keepalives': 1,
-        'keepalives_idle': 30,
-        'keepalives_interval': 10,
-        'keepalives_count': 5
-    }
-}
-
-db = SQLAlchemy(app)
-
-# Add a test endpoint to verify the connection
-@app.route('/test-db')
-def test_db():
-    try:
-        result = db.session.execute('SELECT 1').scalar()
-        return jsonify({
-            'status': 'success',
-            'database': 'connected',
-            'result': result
-        })
-    except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'database': 'connection failed',
-            'error': str(e)
-        }), 500
+# Database configuration
+try:
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://ewaste_quiz_user:EZiIHWJXeSvUWyzKZKApKfQYkwBlZn59@dpg-cvrm7v3e5dus738ci7g0-a/ewaste_quiz')
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    db = SQLAlchemy(app)
+    print("Database connection successful!")
+except Exception as e:
+    print(f"Database connection error: {e}", file=sys.stderr)
+    sys.exit(1)
 
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -155,15 +109,13 @@ def get_questions():
     
     try:
         questions = Question.query.all()
-        print(f"Fetched {len(questions)} questions from the database", file=sys.stderr)
         if not questions:
             return jsonify({'error': 'No questions found in database'}), 404
         random_questions = random.sample(questions, min(10, len(questions)))
-        print(f"Returning {len(random_questions)} random questions", file=sys.stderr)
         return jsonify([q.to_dict() for q in random_questions])
     except Exception as e:
         print(f"Error fetching questions: {e}", file=sys.stderr)
-        return jsonify({'error': 'Failed to fetch questions', 'details': str(e)}), 500
+        return jsonify({'error': 'Failed to fetch questions'}), 500
 
 @app.route('/api/submit-score', methods=['POST'])
 def submit_score():
@@ -264,11 +216,6 @@ def check_answer():
     except Exception as e:
         print(f"Error checking answer: {e}", file=sys.stderr)
         return jsonify({'error': 'Failed to check answer'}), 500
-
-# Ensure static files are accessible
-@app.route('/favicon.ico')
-def favicon():
-    return app.send_static_file('favicon.ico')
 
 if __name__ == '__main__':
     with app.app_context():
